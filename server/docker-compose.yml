@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+    php:
+        image: alex_dwt/mobile-gps-recorder-php:latest
+        build:
+            context: '.'
+            dockerfile: 'php/Dockerfile'
+        networks:
+            - webnet
+        environment:
+            - DATABASE_URL=mysql://${DB_USER}:${DB_PASS}@database:3306/${DB_NAME}
+        env_file:
+            - ./app/.env.dist
+
+    front:
+        image: alex_dwt/mobile-gps-recorder-front:latest
+        build: 'nginx'
+        ports:
+              - 80:80
+        networks:
+              - webnet
+
+    database:
+        image: mysql:5.7.22
+        volumes:
+            - msdata:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=${DB_PASS}
+            - MYSQL_USER=${DB_USER}
+            - MYSQL_PASSWORD=${DB_PASS}
+            - MYSQL_DATABASE=${DB_NAME}
+        networks:
+            - webnet
+
+networks:
+  webnet:
+
+volumes:
+   msdata:
