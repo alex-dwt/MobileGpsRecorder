@@ -33,8 +33,20 @@ services:
         networks:
             - webnet
 
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+        environment:
+            - cluster.name=docker-cluster
+            - bootstrap.memory_lock=true
+            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+        volumes:
+            - esdata:/usr/share/elasticsearch/data
+        networks:
+            - webnet
+
 networks:
   webnet:
 
 volumes:
    msdata:
+   esdata:
