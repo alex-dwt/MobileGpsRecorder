@@ -2,6 +2,12 @@
 
 namespace App\Application\Controller;
 
+use App\Application\Handler\Place\CreatePlaceHandler;
+use App\Application\Handler\Place\GetPlacesHandler;
+use App\Application\Handler\Place\GetPlaceHandler;
+use App\Domain\Place\Transformer\PlaceTransformer;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -12,17 +18,34 @@ class PlacesController
     /**
      * @Route(methods={"POST"})
      */
-    public function createAction(): array
+    public function createAction(CreatePlaceHandler $handler, Request $request): array
     {
-        return [111=>222];
+        $lat = (float) $request->request->get('lat');
+        $lon = (float) $request->request->get('lon');
+
+        if (!$lat || !$lon) {
+            throw new UnprocessableEntityHttpException('Wrong lat/lon coordinates.');
+        }
+
+        return $handler->setTransformer(new PlaceTransformer())($lat, $lon);
     }
 
 
     /**
      * @Route(path="/{id}", methods={"GET"}, requirements={"id": "[\-a-z\d]+"})
      */
-    public function viewAction(string $id): array
+    public function viewAction(string $id, GetPlaceHandler $handler): array
     {
-        return [111=>222];
+        return $handler->setTransformer(new PlaceTransformer())($id);
+    }
+
+    /**
+     * @Route(methods={"GET"})
+     */
+    public function getListAction(GetPlacesHandler $handler): array
+    {
+        return [
+            'items' => $handler->setTransformer(new PlaceTransformer())()
+        ];
     }
 }
