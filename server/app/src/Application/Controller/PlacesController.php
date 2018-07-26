@@ -5,6 +5,7 @@ namespace App\Application\Controller;
 use App\Application\Handler\Place\CreatePlaceHandler;
 use App\Application\Handler\Place\GetPlacesHandler;
 use App\Application\Handler\Place\GetPlaceHandler;
+use App\Application\Handler\Place\GetPlacesInSquareHandler;
 use App\Domain\Place\Transformer\PlaceTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -30,6 +31,25 @@ class PlacesController
         return $handler->setTransformer(new PlaceTransformer())($lat, $lon);
     }
 
+    /**
+     * @Route(path="/in_square", methods={"GET"})
+     */
+    public function inSquareAction(Request $request, GetPlacesInSquareHandler $handler): array
+    {
+        $topLeft = (string) $request->query->get('topLeft');
+        $bottomRight = (string) $request->query->get('bottomRight');
+
+        if (!$topLeft || !$bottomRight) {
+            throw new UnprocessableEntityHttpException('Wrong topLeft/bottomRight coordinates.');
+        }
+
+        return [
+            'items' => $handler->setTransformer(new PlaceTransformer())(
+                    $topLeft,
+                    $bottomRight
+                )
+        ];
+    }
 
     /**
      * @Route(path="/{id}", methods={"GET"}, requirements={"id": "[\-a-z\d]+"})

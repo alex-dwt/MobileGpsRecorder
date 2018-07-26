@@ -43,4 +43,9 @@ class Place
     {
         return $this->lon;
     }
+
+    public function getLocation()
+    {
+        return "$this->lat,$this->lon";
+    }
 }

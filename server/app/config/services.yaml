@@ -17,6 +17,8 @@ services:
 
     App\Application\Handler\:
         resource: '../src/Application/Handler'
+    App\Application\Command\:
+        resource: '../src/Application/Command'
     App\Infrastructure\:
         resource: '../src/Infrastructure'
 
@@ -32,3 +34,6 @@ services:
     App\Application\EventListener\KernelViewListener:
         tags:
             - { name: kernel.event_listener, event: kernel.view }
+
+    App\Application\Handler\Place\GetPlacesInSquareHandler:
+        $placesElasticFinder: '@fos_elastica.finder.app.place'

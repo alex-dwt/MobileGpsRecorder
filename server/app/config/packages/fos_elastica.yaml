@@ -3,4 +3,17 @@ fos_elastica:
     clients:
         default: { host: elasticsearch, port: 9200 }
     indexes:
-        app: ~
+        app:
+            types:
+                place:
+                    properties:
+                        id: ~
+                        createdAt: ~
+                        location: { type: geo_point }
+                    persistence:
+                        driver: orm
+                        model: App\Domain\Place\Place
+#                        provider: ~
+                        listener:
+                            enabled: false
+#                        finder: ~

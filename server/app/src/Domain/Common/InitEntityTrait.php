@@ -35,4 +35,11 @@ trait InitEntityTrait
     {
         return $this->createdAt;
     }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
 }
