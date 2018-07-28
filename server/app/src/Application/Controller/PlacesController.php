@@ -6,6 +6,7 @@ use App\Application\Handler\Place\CreatePlaceHandler;
 use App\Application\Handler\Place\GetPlacesHandler;
 use App\Application\Handler\Place\GetPlaceHandler;
 use App\Application\Handler\Place\GetPlacesInSquareHandler;
+use App\Domain\Place\Transformer\PlaceInSquareTransformer;
 use App\Domain\Place\Transformer\PlaceTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -44,7 +45,7 @@ class PlacesController
         }
 
         return [
-            'items' => $handler->setTransformer(new PlaceTransformer())(
+            'items' => $handler->setTransformer(new PlaceInSquareTransformer())(
                     $topLeft,
                     $bottomRight
                 )

@@ -58,16 +58,16 @@ class CreatePlacesCommand extends Command
         $lon = 70.1;
 
         for ($i = 0; $i < self::PLACES_COUNT; $i++) {
-            $place = new Place($lat, $lon);
-            $place->setCreatedAt(
-                (new \DateTimeImmutable())->setDate(2018, rand(2, 10), rand(2, 25))
-            );
-            $this->placeRepository->add($place);
-
+            for ($j = 0; $j < 3; $j++) {
+                $place = new Place($lat, $lon);
+                $place->setCreatedAt(
+                    (new \DateTimeImmutable())->setDate(2018, rand(2, 10), rand(2, 25))
+                );
+                $this->placeRepository->add($place);
+                $lat -= 0.3;
+                $lon += 1.5;
+            }
             $progressBar->advance();
-
-            $lat--;
-            $lon += 5;
         }
 
         $this->em->flush();

@@ -7,4 +7,4 @@ services:
 
     front:
         volumes:
-            - ./app/public/web:/srv
+            - ../client:/srv

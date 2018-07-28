@@ -3,37 +3,29 @@
 namespace App\Application\Handler\Place;
 
 use App\Application\Handler\CommonHandler;
-use App\Infrastructure\Persistence\Doctrine\DoctrinePlaceRepository;
-use Elastica\Query\BoolQuery;
-use Elastica\Query\GeoBoundingBox;
-use FOS\ElasticaBundle\Finder\TransformedFinder;
-use Elastica\Query\MatchAll;
-use Elastica\Query\Filtered;
+use App\Domain\Place\Service\GetPlacesInSquare;
 
 class GetPlacesInSquareHandler extends CommonHandler
 {
     /**
-     * @var TransformedFinder
+     * @var GetPlacesInSquare
      */
-    private $placesElasticFinder;
+    private $getPlacesInSquare;
 
     public function __construct(
-        DoctrinePlaceRepository $placeRepository,
-        $placesElasticFinder
+        GetPlacesInSquare $getPlacesInSquare
     ) {
-        $this->placesElasticFinder = $placesElasticFinder;
+        $this->getPlacesInSquare = $getPlacesInSquare;
     }
 
-    public function __invoke(string $topLeft, string $bottomRight)
-    {
+    public function __invoke(
+        string $topLeft,
+        string $bottomRight
+    ) {
         return $this->returnValue(
-            $this->placesElasticFinder->find(
-                (new BoolQuery())
-                    ->addMust(new MatchAll())
-                    ->addFilter(new GeoBoundingBox(
-                        'location',
-                        [$topLeft, $bottomRight]
-                    ))
+            $this->getPlacesInSquare->execute(
+                $topLeft,
+                $bottomRight
             )
         );
     }

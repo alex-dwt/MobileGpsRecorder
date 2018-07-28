@@ -35,5 +35,7 @@ services:
         tags:
             - { name: kernel.event_listener, event: kernel.view }
 
-    App\Application\Handler\Place\GetPlacesInSquareHandler:
+    App\Domain\Place\Service\GetPlacesInSquare:
         $placesElasticFinder: '@fos_elastica.finder.app.place'
+
+    App\Domain\Place\Service\GeohashAnalyser: '@App\Infrastructure\Geo\GeohashTools'
