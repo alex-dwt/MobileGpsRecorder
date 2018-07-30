@@ -18,17 +18,16 @@ export default class App extends React.Component {
     return (
       <View style={styles.container}>
 
-          {/*<MapView*/}
-              {/*initialRegion={{*/}
-                  {/*latitude: 37.78825,*/}
-                  {/*longitude: -122.4324,*/}
-                  {/*latitudeDelta: 0.0922,*/}
-                  {/*longitudeDelta: 0.0421,*/}
-              {/*}}*/}
-          {/*/>*/}
-
-        <Text>$$$$$$$$$$$</Text>
-
+          <MapView
+              style={styles.map}
+              region={{
+                  latitude: 37.78825,
+                  longitude: -122.4324,
+                  latitudeDelta: 0.015,
+                  longitudeDelta: 0.0121,
+              }}
+          >
+          </MapView>
 
 {/*          <YMaps>
               <Map
@@ -42,7 +41,7 @@ export default class App extends React.Component {
       </View>
     );
   }
-    // AIzaSyAMfUAie_tKpYmtQsbOK1R0NB_3onBOBVM
+
     // apt-get install  usbutils
     // apt-get install -y unzip
     // wget https://dl.google.com/android/repository/platform-tools-latest-linux.zip
@@ -92,12 +91,19 @@ export default class App extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    container: {
+        ...StyleSheet.absoluteFillObject,
+        flex: 1,
+    },
+    map: {
+        ...StyleSheet.absoluteFillObject,
+    },
+  // container: {
+  //   flex: 1,
+  //   backgroundColor: '#fff',
+  //   alignItems: 'center',
+  //   justifyContent: 'center',
+  // },
 });
 
 
