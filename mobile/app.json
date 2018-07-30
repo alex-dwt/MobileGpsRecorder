@@ -1,4 +1,6 @@
 {
+  "name": "mobileGps",
+  "displayName": "mobileGps",
   "expo": {
     "sdkVersion": "27.0.0"
   }
