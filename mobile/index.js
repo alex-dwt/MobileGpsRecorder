@@ -1,6 +1,9 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import MapView from 'react-native-maps';
+import { Marker } from 'react-native-maps';
+import { AppRegistry } from "react-native";
+import { name as appName } from "./app.json";
 
 export default class App extends React.Component {
     constructor(props) {
@@ -10,7 +13,13 @@ export default class App extends React.Component {
         this.mapCenter = [55.76, 37.64];
 
         this.state = {
-            pins: [],
+            pins: [{
+                lat: 29.899822162363883,
+                lon: 131.33037108927965,
+                id: 1,
+                type: 'place',
+                createdAt: '435353',
+            }],
         };
     }
 
@@ -20,6 +29,7 @@ export default class App extends React.Component {
 
           <MapView
               style={styles.map}
+              onRegionChange={this.onRegionChange.bind(this)}
               region={{
                   latitude: 37.78825,
                   longitude: -122.4324,
@@ -27,67 +37,28 @@ export default class App extends React.Component {
                   longitudeDelta: 0.0121,
               }}
           >
-          </MapView>
 
-{/*          <YMaps>
-              <Map
-                  state={{ center: this.mapCenter, zoom: 2 }}
-                  width="1300px"
-                  height="400px"
-              >
-              </Map>
-          </YMaps>*/}
+              {this.state.pins.map(pin =>
+                  <Marker
+                      key={pin.id}
+                      title={pin.createdAt}
+                      coordinate={{latitude: pin.lat, longitude: pin.lon}}
+                  />
+              )}
+
+          </MapView>
 
       </View>
     );
   }
 
-    // apt-get install  usbutils
-    // apt-get install -y unzip
-    // wget https://dl.google.com/android/repository/platform-tools-latest-linux.zip
+    onRegionChange(e) {
+        let topLeft = `${e.latitude + e.latitudeDelta / 2},${e.longitude - e.longitudeDelta / 2}`;
+        let bottomRight = `${e.latitude - e.latitudeDelta / 2},${e.longitude + e.longitudeDelta / 2}`;
 
-    // adb devices
-
-    // export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-amd64/
-    // export  PATH="$PATH:$JAVA_HOME/bin"
-
-    // apt-get install default-jdk
-
-// ./node_modules/.bin/react-native eject
-
-
-    // Updating certificates in /etc/ssl/certs... 0 added, 0 removed; done.
-    // Running hooks in /etc/ca-certificates/update.d....
-// /etc/ca-certificates/update.d/jks-keystore: 82: /etc/ca-certificates/update.d/jks-keystore: java: not found
-//     E: /etc/ca-certificates/update.d/jks-keystore exited with code 1.
-//     done.
-
-// /tmp/platform-tools/adb reverse tcp:8081 tcp:8081
-
-    // echo deb http://ftp.debian.org/debian jessie-backports main >> /etc/apt/sources.list
-
-    // apt-get install -t jessie-backports openjdk-8-jdk
-
-    // export ANDROID_HOME=/usr/local/android
-    // export PATH=$PATH:$ANDROID_HOME/tools
-    // export PATH=$PATH:$ANDROID_HOME
-
-    // yes | /usr/local/android/tools/bin/sdkmanager --licenses
-
-    // wget https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
-    // unzip /usr/local/ sdk-tools-linux-4333796.zip
-
-
-    // mkdir android/app/src/main/assets
-    // react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
-
-    // echo 'SUBSYSTEM=="usb", ATTR{idVendor}=="1004", MODE="0666", GROUP="plugdev"' | sudo tee /etc/udev/rules.d/51-android-usb.rules
-    // sudo adb kill-server
-    // sudo adb start-server
-// # udevadm control --reload-rules && udevadm trigger
-
-    // react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
-
+        console.log(topLeft)
+        console.log(bottomRight)
+    }
 }
 
 const styles = StyleSheet.create({
@@ -106,8 +77,4 @@ const styles = StyleSheet.create({
   // },
 });
 
-
-import { AppRegistry } from "react-native";
-// import App from "./App";
-import { name as appName } from "./app.json";
 AppRegistry.registerComponent(appName, () => App);
