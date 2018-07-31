@@ -4,6 +4,14 @@ import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
 import { AppRegistry } from "react-native";
 import { name as appName } from "./app.json";
+import BackgroundJob from 'react-native-background-job';
+
+const BACKGROUND_JOB_ID = 'BACKGROUND_JOB';
+
+BackgroundJob.register({
+    jobKey: BACKGROUND_JOB_ID,
+    job: () => console.log("Running in background")
+});
 
 export default class App extends React.Component {
     constructor(props) {
@@ -21,6 +29,12 @@ export default class App extends React.Component {
                 createdAt: '435353',
             }],
         };
+
+        BackgroundJob.schedule({
+            jobKey: BACKGROUND_JOB_ID,
+            period: 1000,
+            allowExecutionInForeground: true
+        });
     }
 
   render() {
