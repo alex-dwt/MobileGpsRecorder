@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Alert, PermissionsAndroid, BackHandler } from 'react-native';
 import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
 import { AppRegistry } from "react-native";
@@ -8,9 +8,53 @@ import BackgroundJob from 'react-native-background-job';
 
 const BACKGROUND_JOB_ID = 'BACKGROUND_JOB';
 
+let lastSavedPositionDate = null;
+
+const saveLocation = async (force = false) => {
+    console.log(lastSavedPositionDate);
+
+    if (force
+        || !lastSavedPositionDate
+        || new Date(lastSavedPositionDate.getTime() + 2*60000) < new Date()
+    ) {
+        const location = await getCurrentLatLon();
+
+        if (location) {
+            lastSavedPositionDate = new Date();
+            console.log('location saved success');
+            console.log(location);
+        } else {
+            console.log('location NOT saved');
+            console.log(location);
+        }
+    } else {
+        console.log('too early to save');
+    }
+};
+
+
+const getCurrentLatLon = () => new Promise(resolve => {
+    navigator.geolocation.getCurrentPosition(
+        info => resolve({
+                lat: info.coords.latitude,
+                lon: info.coords.longitude,
+        }),
+        () => resolve(null),
+        {
+            timeout: 100000,
+            maximumAge: 0,
+            enableHighAccuracy: true
+        }
+    );
+});
+
+
 BackgroundJob.register({
     jobKey: BACKGROUND_JOB_ID,
-    job: () => console.log("Running in background")
+    job: () => {
+        console.log("Running in background");
+        saveLocation();
+    }
 });
 
 export default class App extends React.Component {
@@ -30,11 +74,54 @@ export default class App extends React.Component {
             }],
         };
 
-        BackgroundJob.schedule({
-            jobKey: BACKGROUND_JOB_ID,
-            period: 1000,
-            allowExecutionInForeground: true
-        });
+    }
+
+    componentDidMount() {
+        PermissionsAndroid
+            .request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
+            .then(res => {
+                if (res === PermissionsAndroid.RESULTS.GRANTED) {
+                    saveLocation();
+
+                    BackgroundJob.schedule({
+                        jobKey: BACKGROUND_JOB_ID,
+                        period: 100000,
+                        // timeout: 10000,
+                        allowExecutionInForeground: true
+                    });
+
+                    // BackgroundJob.isAppIgnoringBatteryOptimization(
+                    //     (error, ignoringOptimization) => {
+                    //         if (ignoringOptimization === true) {
+                    //             BackgroundJob.schedule({
+                    //                 jobKey: everRunningJobKey,
+                    //                 period: 1000,
+                    //                 exact: true,
+                    //                 allowWhileIdle: true
+                    //             });
+                    //         } else {
+                    //             console.log(
+                    //                 "To ensure app functions properly,please manually remove app from battery optimization menu."
+                    //             );
+                    //             //Dispay a toast or alert to user indicating that the app needs to be removed from battery optimization list, for the job to get fired regularly
+                    //         }
+                    //     }
+                    // );
+
+                } else {
+                    Alert.alert(
+                        'Error',
+                        'Please enable geo-location',
+                        [{
+                            text: 'OK',
+                            onPress: () => {
+                                console.log('OK Pressed')
+                                BackHandler.exitApp();
+                            }
+                        }]
+                    )
+                }
+            });
     }
 
   render() {
@@ -70,8 +157,8 @@ export default class App extends React.Component {
         let topLeft = `${e.latitude + e.latitudeDelta / 2},${e.longitude - e.longitudeDelta / 2}`;
         let bottomRight = `${e.latitude - e.latitudeDelta / 2},${e.longitude + e.longitudeDelta / 2}`;
 
-        console.log(topLeft)
-        console.log(bottomRight)
+        // console.log(topLeft)
+        // console.log(bottomRight)
     }
 }
 

@@ -10,17 +10,18 @@ CMD ["bash", "/app/boot.bash"]
 
 RUN cd /tmp \
     && wget https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip \
-    && mkdir /usr/local/android \
+    && mkdir -p /usr/local/android/platform-tools \
     && unzip sdk-tools-linux-4333796.zip -d /usr/local/android \
     && rm -f sdk-tools-linux-4333796.zip
 
-ENV ANDROID_HOME /usr/local/android
-ENV PATH $PATH:/app/node_modules/.bin
-
 RUN yes | /usr/local/android/tools/bin/sdkmanager --licenses
 
-#/usr/local/android/platform-tools/adb shell input keyevent 82
-#/usr/local/android/platform-tools/adb reverse tcp:8081 tcp:8081
+ENV ANDROID_HOME /usr/local/android
+ENV PATH $PATH:/app/node_modules/.bin:/usr/local/android/platform-tools
+
+
+#adb shell input keyevent 82
+#adb reverse tcp:8081 tcp:8081
 
 #react-native log-android
 #react-native run-android
