@@ -5,26 +5,37 @@ import { Marker } from 'react-native-maps';
 import { AppRegistry } from "react-native";
 import { name as appName } from "./app.json";
 import BackgroundJob from 'react-native-background-job';
+var qs = require('qs');
+import axios from 'axios';
 
 const BACKGROUND_JOB_ID = 'BACKGROUND_JOB';
 
 let lastSavedPositionDate = null;
+
+const URL = 'http://192.168.1.7/api/places';
 
 const saveLocation = async (force = false) => {
     console.log(lastSavedPositionDate);
 
     if (force
         || !lastSavedPositionDate
-        || new Date(lastSavedPositionDate.getTime() + 2*60000) < new Date()
+        || new Date(lastSavedPositionDate.getTime() + 1*60000) < new Date()
     ) {
         const location = await getCurrentLatLon();
 
         if (location) {
-            lastSavedPositionDate = new Date();
-            console.log('location saved success');
-            console.log(location);
+            try {
+                await axios.post(URL, qs.stringify(location)); //todo change to json
+
+                lastSavedPositionDate = new Date();
+                console.log('location saved success');
+                console.log(location);
+            } catch (e) {
+                console.log('location NOT SAVED at server');
+                console.log(e);
+            }
         } else {
-            console.log('location NOT saved');
+            console.log('location NOT GETTED FROM GPS');
             console.log(location);
         }
     } else {
@@ -62,16 +73,17 @@ export default class App extends React.Component {
         super(props);
 
         this.mapTopLeft = this.mapBottomRight = null;
-        this.mapCenter = [55.76, 37.64];
+
+        this.region = {
+            latitude: 37.78825,
+            longitude: -122.4324,
+            latitudeDelta: 0.015,
+            longitudeDelta: 0.0121,
+        };
 
         this.state = {
-            pins: [{
-                lat: 29.899822162363883,
-                lon: 131.33037108927965,
-                id: 1,
-                type: 'place',
-                createdAt: '435353',
-            }],
+            region: this.region,
+            pins: [],
         };
 
     }
@@ -85,8 +97,8 @@ export default class App extends React.Component {
 
                     BackgroundJob.schedule({
                         jobKey: BACKGROUND_JOB_ID,
-                        period: 100000,
-                        // timeout: 10000,
+                        period: 60000,
+                        timeout: 10000,
                         allowExecutionInForeground: true
                     });
 
@@ -131,18 +143,22 @@ export default class App extends React.Component {
           <MapView
               style={styles.map}
               onRegionChange={this.onRegionChange.bind(this)}
-              region={{
-                  latitude: 37.78825,
-                  longitude: -122.4324,
-                  latitudeDelta: 0.015,
-                  longitudeDelta: 0.0121,
-              }}
+              region={this.state.region}
           >
 
               {this.state.pins.map(pin =>
                   <Marker
                       key={pin.id}
-                      title={pin.createdAt}
+                      title={
+                          pin.type === 'place'
+                              ? `${pin.createdAt}`
+                              : `${pin.placesCount}`
+                      }
+                      pinColor={
+                          pin.type === 'place'
+                              ? '#FF2D00'
+                              : '#0FFF00'
+                      }
                       coordinate={{latitude: pin.lat, longitude: pin.lon}}
                   />
               )}
@@ -154,12 +170,45 @@ export default class App extends React.Component {
   }
 
     onRegionChange(e) {
+        this.region = e;
+
         let topLeft = `${e.latitude + e.latitudeDelta / 2},${e.longitude - e.longitudeDelta / 2}`;
         let bottomRight = `${e.latitude - e.latitudeDelta / 2},${e.longitude + e.longitudeDelta / 2}`;
+
+        this.mapTopLeft = topLeft;
+        this.mapBottomRight = bottomRight;
+
+        this.reloadPins();
 
         // console.log(topLeft)
         // console.log(bottomRight)
     }
+
+    reloadPins() {
+        if (this.reloadPinsTimer) {
+            clearTimeout(this.reloadPinsTimer);
+        }
+
+        if (this.reloadPinsCancelToken) {
+            this.reloadPinsCancelToken();
+        }
+
+        this.reloadPinsTimer = setTimeout(() => {
+            axios.get(
+                `${URL}/in_square?topLeft=${this.mapTopLeft}&bottomRight=${this.mapBottomRight}`, {
+                    cancelToken: new (axios.CancelToken)(c => this.reloadPinsCancelToken = c)
+                })
+                .then(res => {
+                    this.setState({
+                        pins: res.data.items,
+                        region: this.region
+                    });
+                    console.log('pins reloaded')
+                })
+                .catch(()  => {});
+        }, 1000);
+    }
+
 }
 
 const styles = StyleSheet.create({

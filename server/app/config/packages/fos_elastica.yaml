@@ -15,5 +15,5 @@ fos_elastica:
                         model: App\Domain\Place\Place
 #                        provider: ~
                         listener:
-                            enabled: false
+                            enabled: true
 #                        finder: ~
