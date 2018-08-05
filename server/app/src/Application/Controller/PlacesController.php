@@ -6,10 +6,10 @@ use App\Application\Handler\Place\CreatePlaceHandler;
 use App\Application\Handler\Place\GetPlacesHandler;
 use App\Application\Handler\Place\GetPlaceHandler;
 use App\Application\Handler\Place\GetPlacesInSquareHandler;
+use App\Application\Request\Places\CreatePlaceRequest;
+use App\Application\Request\Places\InSquareRequest;
 use App\Domain\Place\Transformer\PlaceInSquareTransformer;
 use App\Domain\Place\Transformer\PlaceTransformer;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -20,34 +20,24 @@ class PlacesController
     /**
      * @Route(methods={"POST"})
      */
-    public function createAction(CreatePlaceHandler $handler, Request $request): array
+    public function createAction(CreatePlaceRequest $createPlaceRequest, CreatePlaceHandler $handler): array
     {
-        $lat = (float) $request->request->get('lat');
-        $lon = (float) $request->request->get('lon');
-
-        if (!$lat || !$lon) {
-            throw new UnprocessableEntityHttpException('Wrong lat/lon coordinates.');
-        }
-
-        return $handler->setTransformer(new PlaceTransformer())($lat, $lon);
+        return $handler
+            ->setTransformer(new PlaceTransformer())(
+                $createPlaceRequest
+            );
     }
 
     /**
      * @Route(path="/in_square", methods={"GET"})
      */
-    public function inSquareAction(Request $request, GetPlacesInSquareHandler $handler): array
+    public function inSquareAction(InSquareRequest $inSquareRequest, GetPlacesInSquareHandler $handler): array
     {
-        $topLeft = (string) $request->query->get('topLeft');
-        $bottomRight = (string) $request->query->get('bottomRight');
-
-        if (!$topLeft || !$bottomRight) {
-            throw new UnprocessableEntityHttpException('Wrong topLeft/bottomRight coordinates.');
-        }
-
         return [
-            'items' => $handler->setTransformer(new PlaceInSquareTransformer())(
-                    $topLeft,
-                    $bottomRight
+            'items' => $handler
+                ->setTransformer(new PlaceInSquareTransformer())(
+                    $inSquareRequest->getTopLeft()['lat'] . ',' . $inSquareRequest->getTopLeft()['lon'],
+                    $inSquareRequest->getBottomRight()['lat'] . ',' . $inSquareRequest->getBottomRight()['lon']
                 )
         ];
     }

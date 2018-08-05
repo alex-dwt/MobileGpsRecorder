@@ -5,14 +5,14 @@ import { Marker } from 'react-native-maps';
 import { AppRegistry } from "react-native";
 import { name as appName } from "./app.json";
 import BackgroundJob from 'react-native-background-job';
-var qs = require('qs');
+const qs = require('qs');
 import axios from 'axios';
 
 const BACKGROUND_JOB_ID = 'BACKGROUND_JOB';
 
 let lastSavedPositionDate = null;
 
-const URL = 'http://192.168.1.7/api/places';
+const URL = 'http://192.168.100.6/api/places';
 
 const saveLocation = async (force = false) => {
     console.log(lastSavedPositionDate);
@@ -25,7 +25,7 @@ const saveLocation = async (force = false) => {
 
         if (location) {
             try {
-                await axios.post(URL, qs.stringify(location)); //todo change to json
+                await axios.post(URL, location);
 
                 lastSavedPositionDate = new Date();
                 console.log('location saved success');
@@ -172,11 +172,14 @@ export default class App extends React.Component {
     onRegionChange(e) {
         this.region = e;
 
-        let topLeft = `${e.latitude + e.latitudeDelta / 2},${e.longitude - e.longitudeDelta / 2}`;
-        let bottomRight = `${e.latitude - e.latitudeDelta / 2},${e.longitude + e.longitudeDelta / 2}`;
-
-        this.mapTopLeft = topLeft;
-        this.mapBottomRight = bottomRight;
+        this.mapTopLeft = {
+            lat: e.latitude + e.latitudeDelta / 2,
+            lon: e.longitude - e.longitudeDelta / 2
+        };
+        this.mapBottomRight = {
+            lat: e.latitude - e.latitudeDelta / 2,
+            lon: e.longitude + e.longitudeDelta / 2
+        };
 
         this.reloadPins();
 
@@ -195,9 +198,15 @@ export default class App extends React.Component {
 
         this.reloadPinsTimer = setTimeout(() => {
             axios.get(
-                `${URL}/in_square?topLeft=${this.mapTopLeft}&bottomRight=${this.mapBottomRight}`, {
-                    cancelToken: new (axios.CancelToken)(c => this.reloadPinsCancelToken = c)
-                })
+                `${URL}/in_square?`
+                    + qs.stringify({
+                        topLeft: this.mapTopLeft,
+                        bottomRight: this.mapBottomRight,
+                    }),
+                    {
+                        cancelToken: new (axios.CancelToken)(c => this.reloadPinsCancelToken = c)
+                    }
+                )
                 .then(res => {
                     this.setState({
                         pins: res.data.items,

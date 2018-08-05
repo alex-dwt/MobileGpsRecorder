@@ -2,6 +2,7 @@ import React from 'react';
 import {render} from 'react-dom';
 import { YMaps, Map, Placemark } from 'react-yandex-maps';
 import axios from 'axios';
+const qs = require('qs');
 
 export class App extends React.Component {
     constructor(props) {
@@ -59,8 +60,14 @@ export class App extends React.Component {
 
         const [leftBottom, rightTop] = event.originalEvent.newBounds;
 
-        this.mapTopLeft = `${rightTop[0]},${leftBottom[1]}`;
-        this.mapBottomRight = `${leftBottom[0]},${rightTop[1]}`;
+        this.mapTopLeft = {
+            lat: rightTop[0],
+            lon: leftBottom[1]
+        };
+        this.mapBottomRight = {
+            lat: leftBottom[0],
+            lon: rightTop[1]
+        };
 
         this.reloadPins();
     }
@@ -75,10 +82,16 @@ export class App extends React.Component {
         }
 
         this.reloadPinsTimer = setTimeout(() => {
-            axios.get(
-                `/api/places/in_square?topLeft=${this.mapTopLeft}&bottomRight=${this.mapBottomRight}`, {
-                    cancelToken: new (axios.CancelToken)(c => this.reloadPinsCancelToken = c)
-                })
+            axios
+                .get(
+                    '/api/places/in_square?' + qs.stringify({
+                        topLeft: this.mapTopLeft,
+                        bottomRight: this.mapBottomRight,
+                    }),
+                    {
+                        cancelToken: new (axios.CancelToken)(c => this.reloadPinsCancelToken = c)
+                    }
+                )
                 .then(res => this.setState({pins: res.data.items}))
                 .catch(()  => {});
         }, 700);
