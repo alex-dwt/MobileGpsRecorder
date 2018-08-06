@@ -7,12 +7,41 @@ import { name as appName } from "./app.json";
 import BackgroundJob from 'react-native-background-job';
 const qs = require('qs');
 import axios from 'axios';
+const PushNotification = require('react-native-push-notification');
 
 const BACKGROUND_JOB_ID = 'BACKGROUND_JOB';
 
 let lastSavedPositionDate = null;
 
 const URL = 'http://192.168.100.6/api/places';
+
+
+PushNotification.configure({
+    // (optional) Called when Token is generated (iOS and Android)
+    onRegister: function(token) {
+        console.log( 'TOKEN:', token );
+    },
+    // (required) Called when a remote or local notification is opened or received
+    onNotification: function(notification) {
+        console.log( 'NOTIFICATION:', notification );
+        // process the notification
+    },
+
+    // ANDROID ONLY: GCM or FCM Sender ID (product_number) (optional - not required for local notifications, but is need to receive remote push notifications)
+    // senderID: "YOUR GCM (OR FCM) SENDER ID",
+
+    // Should the initial notification be popped automatically
+    // default: true
+    popInitialNotification: true,
+
+    /**
+     * (optional) default: true
+     * - Specified if permissions (ios) and token (android and ios) will requested or not,
+     * - if not, you must call PushNotificationsHandler.requestPermissions() later
+     */
+    requestPermissions: true,
+});
+
 
 const saveLocation = async (force = false) => {
     console.log(lastSavedPositionDate);
@@ -89,6 +118,23 @@ export default class App extends React.Component {
     }
 
     componentDidMount() {
+
+
+        PushNotification.localNotification({
+            /* Android Only Properties */
+            /* iOS and Android properties */
+            title: "My Notification Title", // (optional)
+                message: "My Notification Message", // (required)
+            playSound: false, // (optional) default: true
+            soundName: 'default', // (optional) Sound to play when the notification is shown. Value of 'default' plays the default sound. It can be set to a custom sound such as 'android.resource://com.xyz/raw/my_sound'. It will look for the 'my_sound' audio file in 'res/raw' directory and play it. default: 'default' (default sound is played)
+            number: '10', // (optional) Valid 32 bit integer specified as string. default: none (Cannot be zero)
+    });
+
+
+
+
+
+
         PermissionsAndroid
             .request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
             .then(res => {

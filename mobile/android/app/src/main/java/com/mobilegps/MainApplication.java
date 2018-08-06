@@ -10,6 +10,8 @@ import com.facebook.soloader.SoLoader;
 
 import com.pilloxa.backgroundjob.BackgroundJobPackage;
 
+import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,7 +30,8 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
             new MapsPackage(),
-            new BackgroundJobPackage()
+            new BackgroundJobPackage(),
+            new ReactNativePushNotificationPackage()
       );
     }
 
