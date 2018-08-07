@@ -39,3 +39,4 @@ services:
         $placesElasticFinder: '@fos_elastica.finder.app.place'
 
     App\Domain\Place\Service\GeohashAnalyser: '@App\Infrastructure\Geo\GeohashTools'
+    App\Domain\Interfaces\PushNotificationSender: '@App\Infrastructure\Mobile\PushNotificator'

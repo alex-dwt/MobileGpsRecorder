@@ -2,3 +2,4 @@
 /.gradle
 /build
 /*.log
+/app/google-services.json

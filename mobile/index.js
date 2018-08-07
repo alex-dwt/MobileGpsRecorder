@@ -13,7 +13,7 @@ const BACKGROUND_JOB_ID = 'BACKGROUND_JOB';
 
 let lastSavedPositionDate = null;
 
-const URL = 'http://192.168.100.6/api/places';
+const URL = 'http://192.168.1.7/api/places';
 
 
 PushNotification.configure({
@@ -27,8 +27,8 @@ PushNotification.configure({
         // process the notification
     },
 
-    // ANDROID ONLY: GCM or FCM Sender ID (product_number) (optional - not required for local notifications, but is need to receive remote push notifications)
-    // senderID: "YOUR GCM (OR FCM) SENDER ID",
+    senderID: '1096862163764',
+
 
     // Should the initial notification be popped automatically
     // default: true
@@ -120,19 +120,19 @@ export default class App extends React.Component {
     componentDidMount() {
 
 
-        PushNotification.localNotification({
-            /* Android Only Properties */
-            /* iOS and Android properties */
-            title: "My Notification Title", // (optional)
-                message: "My Notification Message", // (required)
-            playSound: false, // (optional) default: true
-            soundName: 'default', // (optional) Sound to play when the notification is shown. Value of 'default' plays the default sound. It can be set to a custom sound such as 'android.resource://com.xyz/raw/my_sound'. It will look for the 'my_sound' audio file in 'res/raw' directory and play it. default: 'default' (default sound is played)
-            number: '10', // (optional) Valid 32 bit integer specified as string. default: none (Cannot be zero)
-    });
+    //     PushNotification.localNotification({
+    //         /* Android Only Properties */
+    //         /* iOS and Android properties */
+    //         title: "My Notification Title", // (optional)
+    //             message: "My Notification Message", // (required)
+    //         playSound: false, // (optional) default: true
+    //         soundName: 'default', // (optional) Sound to play when the notification is shown. Value of 'default' plays the default sound. It can be set to a custom sound such as 'android.resource://com.xyz/raw/my_sound'. It will look for the 'my_sound' audio file in 'res/raw' directory and play it. default: 'default' (default sound is played)
+    //         number: '10', // (optional) Valid 32 bit integer specified as string. default: none (Cannot be zero)
+    // });
 
 
 
-
+        // PushNotification.requestPermissions();
 
 
         PermissionsAndroid
